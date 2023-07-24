@@ -1,0 +1,70 @@
+set shellopts '-eu'
+set ifs "\n"
+set scrolloff 10
+# set icons
+set period 1
+set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+set previewer '~/.config/lf/scope'
+set autoquit true
+set hidden true
+set drawbox
+set info size
+set scrolloff 8
+
+cmd view-metadata ${{
+    mediainfo "$f" | less
+}}
+
+cmd edit-config ${{
+    $EDITOR ~/.config/lf/lfrc
+    lf -remote "send $id source ~/.config/lf/lfrc"
+}}
+
+cmd toggle_preview %{{
+    if [ "$lf_preview" = "true" ]; then
+        lf -remote "send $id :set preview false; set ratios 1:5"
+    else
+        lf -remote "send $id :set preview true; set ratios 1:2:3"
+    fi
+}}
+
+cmd open ${{
+    if [ "$(readlink -f "$f" | awk -F'.' '{print $NF}')" == "m3u" ]; then
+	    setsid -f mpv --hwdec=auto --save-position-on-quit $f -quiet >/dev/null 2>&1
+        exit
+    fi
+
+    case $(file --mime-type "$(readlink -f $f)" -b) in
+	image/*) 
+        rotdir $f | grep -i "\.\(png\|jpg\|jpeg\|gif\|webp\|avif\|tif\|ico\)\(_large\)*$" |
+		setsid -f swayimg 2>/dev/null | while read -r file; do
+			[ -z "$file" ] && continue
+			lf -remote "send select \"$file\""
+			lf -remote "send toggle"
+		done & ;;
+	*/pdf)
+        setsid -f zathura $fx >/dev/null 2>&1 ;;
+    text/*|application/json|inode/x-empty|application/x-subrip) 
+        $EDITOR $fx;;
+	audio/*)
+        mpv --audio-display=no $f ;;
+	video/*)
+        setsid -f mpv --hwdec=auto $f -quiet >/dev/null 2>&1 ;;
+    *)
+        notify-send "LF" "No mime type found for $fx, open it manualy, fix later" ;;
+    esac
+}}
+
+cmd delete ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf "%s\n\t" "$fx"
+	printf "delete?[y/N]"
+	read ans
+	[ $ans = "y" ] && rm -rf -- $fx
+}}
+
+map zp toggle_preview
+map C edit-config
+map D delete
+map i view-metadata

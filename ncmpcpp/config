@@ -1,0 +1,13 @@
+display_volume_level = no
+external_editor = nvim
+ignore_leading_the = yes
+lyrics_directory = "~/.local/share/lyrics"
+media_library_primary_tag = album_artist
+message_delay_time = "1"
+mpd_music_dir = "~/mus"
+ncmpcpp_directory = "~/.config/ncmpcpp"
+startup_screen = "media_library"
+use_console_editor = yes
+visualizer_type = "spectrum"
+
+# vim: filetype=conf

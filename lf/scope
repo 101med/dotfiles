@@ -1,0 +1,36 @@
+#!/bin/sh
+
+set -C -f
+IFS="$(printf '%b_' '\n')"; IFS="${IFS%_}"
+
+
+image() {
+    chafa -f sixel "$1" -s "$(($2-2))x$3" | sed 's/#/\n#/g'
+}
+
+case "$(file --dereference --brief --mime-type -- "$1")" in
+	image/*) 
+        image "$1" "$2" "$3"
+        ;;
+    video/*|audio/*)
+        CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/lf/thumb.$(stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" | sha256sum | cut -d' ' -f1)"
+        [ ! -f "$CACHE" ] && ffmpegthumbnailer -i "$1" -o "$CACHE.jpg" -s 0 -m
+        image "$CACHE.jpg" "$2" "$3"
+        ;;
+    */pdf)
+        CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/lf/thumb.$(stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" | sha256sum | cut -d' ' -f1)"
+        [ ! -f "$CACHE.jpg" ] && pdftoppm -jpeg -f 1 -singlefile "$1" "$CACHE"
+        image "$CACHE.jpg" "$2" "$3"
+        ;;
+    text/html)
+        lynx -width="$4" -display_charset=utf-8 -dump "$1"
+        ;;
+    text/* | */xml | application/json)
+        bat --theme gruvbox-dark --terminal-width "$(($4-2))" -f "$1"
+        ;;
+    application/x-bittorrent)
+        aria2c --show-files "$1" | bat --theme gruvbox-dark --terminal-width "$(($4-2))" -f --file-name "$1"
+        ;;
+    text/troff) man ./ "$1" | col -b 
+        ;;
+esac

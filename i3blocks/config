@@ -1,0 +1,32 @@
+separator=true
+separator_block_width=15
+
+[nettraf]
+command=nettraf
+interval=1
+
+[internet]
+command=nmcli -g NAME connection show --active | awk 'NR==1 {if ($1=="lo") {print "[W] Disconnected"} else {print "[W]", $1}}'
+interval=60
+
+[mem]
+command=free -h | awk '/Mem/ {print $3}'
+interval=20
+
+[volume]
+command=wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ if (length($0) == 12) {print "[V] "$2*100"%"} else {print "[V] "$2*100"%", $3} }'
+interval=once
+signal=10
+
+[brightness]
+command=awk 'NR==1 {curr=$1} NR==2 {max=$1; printf("[B] %d%\n", (curr/max)*100)}' /sys/class/backlight/*/brightness /sys/class/backlight/*/max_brightness
+interval=once
+signal=12
+
+[battery]
+command=battrey
+interval=60
+
+[time]
+command=date '+%H:%M'
+interval=30

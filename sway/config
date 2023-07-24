@@ -1,0 +1,140 @@
+set $mod Mod4
+set $left h
+set $down j
+set $up k
+set $right l
+set $term foot
+set $menu bemenu-run -p run --fn "Iosevka Nerd Font Mono 12" -H 24
+
+popup_during_fullscreen leave_fullscreen
+floating_modifier $mod normal
+# gaps inner 10
+
+bar {
+    position bottom
+    height 24
+    status_command i3blocks
+    font pango:Iosevka Nerd Font 11
+
+    colors {
+        statusline #ebdbb2
+        background #1d2021
+        inactive_workspace #323232 #323232 #5c5c5c
+    }
+}
+
+for_window [shell="xwayland"] title_format "[XWayland] %title"
+
+exec gammastep -l 36.6:3.08
+exec pipewire
+exec pipewire-pulse
+exec wireplumber
+exec dunst
+exec swayidle -w \
+         timeout 300 'swaymsg "output * power off"' \
+         resume 'swaymsg "output * power on"' \
+         before-sleep 'swaylock"'
+
+output * bg ~/pic/wall/flower.png fill
+
+input type:keyboard {
+    xkb_layout gb,ara
+    repeat_delay 300
+    repeat_rate 40
+    xkb_options grp:alt_space_toggle,caps:escape
+}
+
+input type:touchpad {
+    dwt enabled
+    tap enabled
+    middle_emulation enabled
+}
+
+bindsym $mod+Return exec $term
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Do you really want to exit sway?' -B 'Yes, exit sway' 'swaymsg exit'
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+Shift+w exec firefox-wayland
+bindsym $mod+Tab workspace back_and_forth
+bindsym $mod+a focus parent
+bindsym $mod+b exec --no-startup-id bar-toggle
+bindsym $mod+d exec $menu
+bindsym $mod+e layout toggle split
+bindsym $mod+f fullscreen toggle
+bindsym $mod+minus scratchpad show
+bindsym $mod+q kill
+bindsym $mod+s layout stacking
+bindsym $mod+semicolon split toggle
+bindsym $mod+space focus mode_toggle
+bindsym $mod+w layout tabbed
+
+# bindsym F5 exec foot
+bindsym Print exec --no-startup-id screenshot.sh
+bindsym Shift+XF86AudioNext exec --no-startup-id mpc seek +10
+bindsym Shift+XF86AudioPrev exec --no-startup-id mpc seek -10
+bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%- && pkill -SIGRTMIN+10 i3blocks
+bindsym XF86AudioMicMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+10 i3blocks
+bindsym XF86AudioNext  exec --no-startup-id mpc next
+bindsym XF86AudioPlay  exec --no-startup-id mpc toggle
+bindsym XF86AudioPrev  exec --no-startup-id mpc prev
+bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ && pkill -SIGRTMIN+10 i3blocks
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%- && pkill -SIGRTMIN+12 i3blocks
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set 5%+ && pkill -SIGRTMIN+12 i3blocks
+bindsym XF86RFKill exec --no-startup-id notify-send "XF86RFKill"
+bindsym XF86WebCam exec --no-startup-id camshot.sh
+
+mode "resize" {
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+
+# include /etc/sway/config.d/*
