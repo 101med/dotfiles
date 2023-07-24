@@ -1,0 +1,92 @@
+# .bashrc
+
+[[ $- != *i* ]] && return
+
+PS1='[\u@\h \W]\$ '
+
+# shopt -s histverify
+set -o noclobber
+
+alias poweroff='loginctl poweroff'
+alias reboot='loginctl reboot'
+alias hibernate='loginctl hibernate'
+alias suspend='loginctl suspend'
+alias xs='sudo xbps-install'
+alias xr='sudo xbps-remove'
+alias xq='xbps-query'
+alias grep='grep -i --color=auto'
+alias fd='fd -H'
+alias ip='ip -c'
+alias mv="mv -iv"
+alias rm="trash -i"
+alias cp="cp -ivr"
+alias ll="ls -A1lh --color=auto --group-directories-first"
+alias ls="ls -A1 --color=auto --group-directories-first"
+alias mkdir="mkdir -p"
+alias diff="diff --color"
+alias sl="ls"
+alias rfkill="sudo rfkill"
+alias smgt="swaymsg -t get_tree | jq | nvim -c 'set ft=json' -c 'set clipboard=unnamedplus'"
+alias bp="source ~/.bash_profile"
+
+export EDITOR=nvim
+# export TERM=xterm-256color
+
+export PATH="$PATH:$HOME/.local/bin/:$HOME/.local/share/npm/bin/:$HOME/.local/bin/statusbar/"
+
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+export HISTFILE="$HOME/.cache/bash/history"
+export HISTSIZE=500000
+export HISTFILESIZE=100000
+export HISTCONTROL="erasedups:ignoreboth"
+
+export MANPATH="$MANPATH:$HOME/.local/share/man"
+export GNUPGHOME="$HOME/.local/share/gnupg"
+export GOPATH="$HOME/.local/share/go"
+export PASSWORD_STORE_DIR="$HOME/.local/share/pass"
+export NPM_CONFIG_USERCONFIG="$HOME/.config/npm/npmrc"
+
+# export MYPY_CACHE_DIR="$XDG_CACHE_HOME/mypy"
+# export PYTEST_CACHE_DIR="$XDG_CACHE_HOME/pytest/__pycache__/"
+# [ -d "$PYTEST_CACHE_DIR" ] || mkdir -p "$PYTEST_CACHE_DIR"
+# export PYTEST_ADDOPTS="cache-dir=$PYTEST_CACHE_DIR"
+
+export MOZ_ENABLE_WAYLAND=1
+export MOZ_USE_XINPUT2=1
+export QT_QPA_PLATFORM=wayland-egl
+export LIBVA_DRIVER_NAME=i965
+export GTK_THEME=Adwaita-dark
+
+[ -d "$HOME/.cache/bash/" ] || mkdir -p "$HOME/.cache/bash/"
+
+if ! [ -d "$GNUPGHOME" ]; then
+    mkdir -p "$GNUPGHOME" && chmod 0700 "$GNUPGHOME"
+fi
+
+[ -d "$HOME/.local/bin/" ] || mkdir -p "$HOME/.local/bin/"
+
+bashrc() {
+    nvim $HOME/.bash{rc,_profile}
+    source "$HOME/.bash_profile"
+}
+
+gc() {
+    local repo
+    repo="$*"
+    [ "${repo}" ] && git clone "${repo}" "${HOME}/.local/src/$(awk -F/ '{print $(NF-1)"/"$NF}' <<< "${repo}")"
+}
+
+cdd() {
+    test -d "$1" && cd "$1" || cd "$(dirname "$1")" || exit
+}
+
+hs() {
+    if [ "$@" ]; then
+        rg "$@" "$HISTFILE" | tac | fzf +s -0 | wl-copy
+    else
+        tac "${HISTFILE}" | fzf +s -0 | wl-copy
+    fi
+}
