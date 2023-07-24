@@ -1,8 +1,11 @@
-/glib-2.0
+/glib-2.0/
+/gtk-3.0/
+/mimeapps.list
 /mpd/playlist/
 /mpv/watch_later/
 /ncmpcpp/error.log
-/newsboat/urls
 /neofetch/
+/newsboat/urls
 /nvim/
 /user-dirs.dirs
+/user-dirs.locale
